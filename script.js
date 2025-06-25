@@ -1,57 +1,56 @@
-window.onload = function(){
-  var generateButton = document.getElementById("random-advice-button");
+document.addEventListener("DOMContentLoaded", () => {
+  const generateButton = document.getElementById("random-advice-button");
   generateButton.addEventListener("click", generateAdvice);
-}
+});
 
-function generateAdvice(){
-  animateDice();
-  handleClick();
-  const apiURL = "https://api.adviceslip.com/advice";
+async function generateAdvice() {
+  const generateButton = document.getElementById("random-advice-button");
   const adviceID = document.getElementById("advice-id");
   const adviceQuote = document.getElementById("advice-text");
+  const diceIcon = document.getElementById("dice-icon");
+  const apiURL = "https://api.adviceslip.com/advice";
 
-  fetch(apiURL)
-  .then((response) => {
-    return response.json();
-  })
-  .then((data) => {
+  generateButton.disabled = true;
+  adviceQuote.textContent = "Loading...";
+  animateDice(diceIcon);
+
+  try {
+    const response = await fetch(apiURL);
+    if (!response.ok) throw new Error("Network response was not ok");
+    const data = await response.json();
     const adviceJson = data["slip"];
-
-    adviceID.innerHTML = adviceJson["id"];
-    adviceQuote.innerHTML = adviceJson["advice"];
-  });
+    adviceID.textContent = adviceJson["id"];
+    adviceQuote.textContent = adviceJson["advice"];
+  } catch (error) {
+    adviceQuote.textContent = "Failed to fetch advice. Please try again.";
+  } finally {
+    generateButton.disabled = false;
+  }
 }
 
-
-function animateDice(){
-  var diceIcon = document.getElementById("dice-icon");
-  var currentRotation = getRotationAngle(diceIcon);
-
+function animateDice(diceIcon = document.getElementById("dice-icon")) {
+  const currentRotation = getRotationAngle(diceIcon);
   if (currentRotation === 0) {
-      // Rotate the icon to -180 degrees
-      diceIcon.style.transform = "rotate(-180deg)";
-    } else {
-      // Reset the rotation to 0 degrees (original state)
-      diceIcon.style.transform = "rotate(0deg)";
-    }
-
-    diceIcon.style.transition = "transform 0.5s ease";
+    diceIcon.style.transform = "rotate(-180deg)";
+  } else {
+    diceIcon.style.transform = "rotate(0deg)";
   }
+  diceIcon.style.transition = "transform 0.5s ease";
+}
 
-  function getRotationAngle(element) {
-    var st = window.getComputedStyle(element, null);
-    var tr = st.getPropertyValue("transform");
-
-    if (tr && tr !== "none") {
-      var values = tr.split('(')[1];
-      values = values.split(')')[0];
-      values = values.split(',');
-      var a = values[0];
-      var b = values[1];
-      var angle = Math.round(Math.atan2(b, a) * (180 / Math.PI));
-      return (angle < 0) ? angle + 360 : angle;
-    }
-    return 0;
+function getRotationAngle(element) {
+  const st = window.getComputedStyle(element, null);
+  const tr = st.getPropertyValue("transform");
+  if (tr && tr !== "none") {
+    let values = tr.split('(')[1];
+    values = values.split(')')[0];
+    values = values.split(',');
+    const a = values[0];
+    const b = values[1];
+    let angle = Math.round(Math.atan2(b, a) * (180 / Math.PI));
+    return angle < 0 ? angle + 360 : angle;
+  }
+  return 0;
 }
 
 function handleClick() {
