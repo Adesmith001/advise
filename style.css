@@ -111,11 +111,11 @@ body{
   font-size: 11px;
   text-align: center;
   color: var(--theme-neon-green);
-  margin-top: 40px;
+  margin-top: 50px;
 }
 
 .attribution a{
-  color: hsl(228, 45%, 44%);
+  color: white;
 }
 
 @media (max-width:420px) {
